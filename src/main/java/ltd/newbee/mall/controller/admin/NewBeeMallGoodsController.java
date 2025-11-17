@@ -2,23 +2,15 @@
 package ltd.newbee.mall.controller.admin;
 
 import lombok.extern.slf4j.Slf4j;
-import ltd.newbee.mall.common.Constants;
-import ltd.newbee.mall.common.NewBeeMallCategoryLevelEnum;
-import ltd.newbee.mall.common.ServiceResultEnum;
+import ltd.newbee.mall.common.*;
 import ltd.newbee.mall.entity.GoodsCategory;
 import ltd.newbee.mall.entity.NewBeeMallGoods;
 import ltd.newbee.mall.service.NewBeeMallCategoryService;
 import ltd.newbee.mall.service.NewBeeMallGoodsService;
-import ltd.newbee.mall.util.ExcelUtil;
 import ltd.newbee.mall.util.PageQueryUtil;
 import ltd.newbee.mall.util.Result;
 import ltd.newbee.mall.util.ResultGenerator;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Controller;
@@ -30,8 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -231,41 +222,83 @@ public class NewBeeMallGoodsController {
         }
     }
 
+    /**
+     * 测试方法 - 用于验证请求是否能到达控制器
+     */
+    @RequestMapping(value = "/goods/test", method = RequestMethod.GET)
+    @ResponseBody
+    public Result test() {
+        log.info("测试方法被调用");
+        return ResultGenerator.genSuccessResult("测试成功");
+    }
 
     /**
-     * 导出商品数据
+     * 批量導入商品數據
      */
-
-    @RequestMapping("/goods/export")
+    @RequestMapping(value = "/goods/export", method = RequestMethod.POST)
+    @ResponseBody
     public Result export(@RequestParam("file") MultipartFile file,
                        HttpServletRequest request, HttpServletResponse response) {
+        log.info("批量導入商品數據 - 開始處理請求");
+        log.info("請求方法: {}", request.getMethod());
+        log.info("請求URL: {}", request.getRequestURL());
+        log.info("請求參數: {}", request.getParameterMap());
+        
         try {
-            // @RequestParam("file") MultipartFile file 是用来接收前端传递过来的文件
-            //开始解析导入数据
-//            boolean isE2007 = false; // 判断是否是excel2007格式
-//            if (file.getOriginalFilename().endsWith("xlsx")) {
-//                isE2007 = true;
-//            }
-//            // 2.准备workbook
-//            // 同时支持Excel 2003、2007
-//            File excelFile = new File("/Users/yinbenxin/Desktop/" + file.getOriginalFilename()); // 创建文件对象
-//            Workbook workbook = null;
-//            FileInputStream is = new FileInputStream(excelFile); // 文件流
-//            // 根据文件格式(2003或者2007)来初始化
-//            if (isE2007) {
-//                workbook = new XSSFWorkbook(is);
-//            } else {
-//                workbook = new HSSFWorkbook(is);
-//            }
-            //TODO 等待重写就行了
-            List<List<Object>> sheetList = ExcelUtil.readExcelPOI(request,0);
-            jsonObject.put("sheetList",sheetList);
-
-            newBeeMallGoodsService.ImportData(workbook);
-            return ResultGenerator.genSuccessResult();
+            if (file == null || file.isEmpty()) {
+                log.warn("文件為空或未選擇");
+                return ResultGenerator.genFailResult("請選擇要上傳的文件");
+            }
+            
+            String fileName = file.getOriginalFilename();
+            log.info("文件名: {}, 文件大小: {} bytes", fileName, file.getSize());
+            
+            if (fileName == null || (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls"))) {
+                log.warn("文件格式不支持: {}", fileName);
+                return ResultGenerator.genFailResult("請上傳Excel文件（.xlsx或.xls格式）");
+            }
+            
+            // 判斷Excel文件格式
+            boolean isExcel2007 = fileName.endsWith(".xlsx");
+            log.info("Excel格式: {}", isExcel2007 ? "2007" : "2003");
+            Workbook workbook = null;
+            
+            try (InputStream inputStream = file.getInputStream()) {
+                log.info("開始創建Workbook");
+                if (isExcel2007) {
+                    workbook = new XSSFWorkbook(inputStream);
+                } else {
+                    workbook = new HSSFWorkbook(inputStream);
+                }
+                log.info("Workbook創建成功");
+                
+                // 調用服務層處理Excel數據
+                log.info("開始調用服務層處理數據");
+                String result = newBeeMallGoodsService.ImportData(workbook);
+                log.info("服務層處理結果: {}", result);
+                
+                if ("SUCCESS".equals(result)) {
+                    log.info("數據導入成功");
+                    return ResultGenerator.genSuccessResult("商品數據導入成功");
+                } else {
+                    log.error("數據導入失敗: {}", result);
+                    return ResultGenerator.genFailResult("商品數據導入失敗：" + result);
+                }
+                
+            } finally {
+                if (workbook != null) {
+                    try {
+                        workbook.close();
+                        log.info("Workbook已關閉");
+                    } catch (IOException e) {
+                        log.error("關閉workbook失敗", e);
+                    }
+                }
+            }
+            
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResultGenerator.genFailResult("导入失败");
+            log.error("導入商品數據失敗", e);
+            return ResultGenerator.genFailResult("導入失敗：" + e.getMessage());
         }
     }
 

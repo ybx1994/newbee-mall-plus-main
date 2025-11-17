@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <header th:replace="admin/header::header-fragment">
@@ -22,6 +21,21 @@
         color: white;
         background-color: #1baeae;
     }
+    
+    /* 导出状态样式 */
+    .export-status {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px 40px;
+        border-radius: 5px;
+        z-index: 9999;
+        font-size: 18px;
+    }
 </style>
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
@@ -41,51 +55,17 @@
             <div class="container-fluid">
                 <div class="card card-primary card-outline">
                     <div class="card-header">
-                        <h3 class="card-title">商品管理</h3>
+                        <h3 class="card-title">理德东方数据</h3>
                     </div> <!-- /.card-body -->
                     <div class="card-body">
                         <div class="grid-btn">
-                            <button class="btn btn-info" onclick="addGoods()"><i
-                                    class="fa fa-plus"></i>&nbsp;添加商品
-                            </button>
-                            <button class="btn btn-info" onclick="liDeExportGoods()"><i
-                                    class="fa fa-creative-commons"></i>&nbsp;导出理德东方现货数据
-                            </button>
 
                             <button class="btn btn-info" onclick="liDeExportGoods()"><i
                                     class="fa fa-creative-commons"></i>&nbsp;导出理德东方现货数据
                             </button>
-                            <button class="btn btn-info" onclick="editGoods()"><i
-                                    class="fa fa-pencil-square-o"></i>&nbsp;修改商品
-                            </button>
-                            <button class="btn btn-success" onclick="putUpGoods()"><i
-                                    class="fa fa-arrow-up"></i>&nbsp;上架商品
-                            </button>
-                            <button class="btn btn-danger" onclick="putDownGoods()"><i
-                                    class="fa fa-arrow-down"></i>&nbsp;下架商品
-                            </button>
-                            <input id="articleImageFile" name="excelFile" type="file" class="form-control" style="width: 300px; display: inline;" />
-                            <button class="btn btn-info" onclick="exportGoods()"><i
-                                    class="fa fa-pencil-square-o"></i>&nbsp;批量上传
-                            </button>
 
-                        </div>
-                        <div class="grid-btn">
-                            <select style="width: 112px;" class="form-control select2" id="goodsStatusSelect"
-                                    data-placeholder="请选择销售状态...">
-                            <option value="100">
-                                全部商品
-                            </option>
-                            <option value="0">
-                                销售中
-                            </option>
-                            <option value="1">
-                                已下架
-                            </option>
-                            </select>&nbsp;
-                            <input style="width: 140px;" type="text" placeholder="商品名称" id="goodsNameInput"
-                                   class="form-control">&nbsp;&nbsp;
-                            <button class="btn btn-info" onclick="searchGoods()"><i class="fa fa-search"></i>&nbsp;搜索
+                            <button class="btn btn-info" onclick="liDeExportGoodsAll()"><i
+                                    class="fa fa-creative-commons"></i>&nbsp;导出理德东方全部数据
                             </button>
                         </div>
                         <table id="jqGrid" class="table table-bordered">
@@ -100,6 +80,12 @@
     <!-- 引入页脚footer-fragment -->
     <div th:replace="admin/footer::footer-fragment"></div>
 </div>
+
+<!-- 导出状态提示 -->
+<div id="exportStatus" class="export-status">
+    <i class="fa fa-spinner fa-spin"></i> 数据导出中，请稍候...
+</div>
+
 <!-- jQuery -->
 <script th:src="@{/admin/plugins/jquery/jquery.min.js}"></script>
 <!-- Bootstrap 4 -->
@@ -112,6 +98,6 @@
 <!-- sweetalert -->
 <script th:src="@{/admin/plugins/sweetalert/sweetalert.min.js}"></script>
 <script th:src="@{/admin/dist/js/public.js}"></script>
-<script th:src="@{/admin/dist/js/newbee_mall_goods.js}"></script>
+<script th:src="@{/admin/dist/js/lide_goods.js}"></script>
 </body>
 </html>

@@ -15,10 +15,7 @@ import ltd.newbee.mall.util.BeanUtil;
 import ltd.newbee.mall.util.PageQueryUtil;
 import ltd.newbee.mall.util.PageResult;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -131,140 +128,179 @@ public class NewBeeMallGoodsServiceImpl  implements NewBeeMallGoodsService {
     }
 
     @Override
-    public void ImportData(Workbook workbook) {
+    public String ImportData(Workbook workbook) {
+        if (workbook == null) {
+            return "Excel文件為空";
+        }
+        
         ArrayList<NewBeeMallGoodsImport> newBeeMallGoodsArrayList = new ArrayList<>();
-        // 2.读取页脚sheet
         Sheet sheet = workbook.getSheetAt(0);
-        int rowCount = sheet.getPhysicalNumberOfRows();//获取总行数
-        log.info("获取到总行数～～～～～～开始拼装数据～～～：{}",rowCount);
-        // 3.循环读取某一行
-        for (int r = 1; r < rowCount; r++) {
+        int rowCount = sheet.getPhysicalNumberOfRows();
+        
+        if (rowCount <= 1) {
+            return "Excel文件中沒有數據行";
+        }
+        
+        log.info("獲取到總行數：{}，開始處理數據", rowCount);
+        
+        int successCount = 0;
+        int errorCount = 0;
+        
+        for (int r = 1; r < rowCount; ++r) {
             Row row = sheet.getRow(r);
-            if (null == row) {
+            if (row == null) {
                 continue;
             }
-            NewBeeMallGoodsImport newBeeMallGoods = new NewBeeMallGoodsImport();
-            for (int c = 1; c <= 16; c++) {
-                Cell cell = row.getCell(c);
-                String cellStringValue = null;
-                if (null != cell) {
-                    int cellType = cell.getCellType();
-                    switch (cellType) {
-                        case Cell.CELL_TYPE_STRING: // 文本
-                            cellStringValue = cell.getStringCellValue();
-                            break;
-                        case Cell.CELL_TYPE_NUMERIC: // 数字、日期
-                            if (org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(cell)) {
-                                // 日期型
-//                                    cellStringValue = fmt.format(cell.getDateCellValue());
-                            } else {
-                                // 数字
-                                cellStringValue = String.valueOf(cell.getNumericCellValue());
-                            }
-                            break;
-                        case Cell.CELL_TYPE_BOOLEAN: // 布尔型
-                            cellStringValue = String.valueOf(cell.getBooleanCellValue());
-                            break;
-                        case Cell.CELL_TYPE_BLANK: // 空白
-                            cellStringValue = cell.getStringCellValue();
-                            break;
-                        case Cell.CELL_TYPE_ERROR: // 错误
-                            cellStringValue = "错误";
-                            break;
-                        case Cell.CELL_TYPE_FORMULA: // 公式
-                            cellStringValue = "错误";
-                            break;
-                        default:
-                            cellStringValue = "错误";
+            
+            try {
+                NewBeeMallGoodsImport newBeeMallGoods = new NewBeeMallGoodsImport();
+                boolean hasData = false;
+                
+                for (int c = 0; c <= 16; ++c) {
+                    Cell cell = row.getCell(c);
+                    String cellStringValue = getCellValueAsString(cell);
+                    
+                    if (StringUtils.isNotEmpty(cellStringValue)) {
+                        hasData = true;
+                        setGoodsField(newBeeMallGoods, c, cellStringValue);
                     }
-                    cellStringValue = cellStringValue.trim();
                 }
-                switch (c) {
-                    //货号
-                    case 1:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setGoodsNum(cellStringValue);
-                        }
-                        break;
-                    //名称
-                    case 2:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setGoodsName(cellStringValue);
-                        }
-                        break;
-                    //包装单位
-                    case 3:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setPackagingUnit(cellStringValue);
-                        }
-                        break;
-                    // 规格
-                    case 4:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setSpecifications(cellStringValue);
-                        }
-                        break;
-                        // 供货周期
-                    case 5:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setSupplyCycle(cellStringValue);
-                        }
-                        break;
-                        //目录价
-                    case 6:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setOriginalPrice(cellStringValue);
-                        }
-                        break;
-                        //实际价
-                    case 7:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setSellingPrice(cellStringValue);
-                        }
-                        break;
-                        //品牌id
-                    case 8:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setBrandId(cellStringValue);
-                        }
-                        break;
-                        //分类id
-                    case 9:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setGoodsCategoryId(cellStringValue);
-                        }
-                        break;
-                        //简介
-                    case 10:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setGoodsIntro(cellStringValue);
-                        }
-                        break;
-                        //存储条件
-                    case 11:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setStorageCons(cellStringValue);
-                        }
-                        //状态
-                    case 12:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setGoodsSellStatus(cellStringValue);
-                        }
-                        break;
-                        //详情
-                    case 13:
-                        if (StringUtils.isNotEmpty(cellStringValue)) {
-                            newBeeMallGoods.setGoodsDetailContent(cellStringValue);
-                        }
-                        break;
-                    default:
-                        log.error("oooooo~~~/goods/export~~~导入失败啦～～～～报错啦");
+                
+                // 只有當行中有數據時才添加到列表中
+                if (hasData) {
+                    // 設置默認值
+                    if (StringUtils.isEmpty(newBeeMallGoods.getGoodsCoverImg())) {
+                        newBeeMallGoods.setGoodsCoverImg("http://4z9lip5uwnza.xiaomiqiu.com/upload/20231024_1903229.jpg");
+                    }
+                    if (StringUtils.isEmpty(newBeeMallGoods.getGoodsCarousel())) {
+                        newBeeMallGoods.setGoodsCarousel("/upload/20231024_1903229.jpg");
+                    }
+                    if (StringUtils.isEmpty(newBeeMallGoods.getGoodsSellStatus())) {
+                        newBeeMallGoods.setGoodsSellStatus("1"); // 默認上架
+                    }
+                    
+                    newBeeMallGoodsArrayList.add(newBeeMallGoods);
+                    successCount++;
                 }
+                
+            } catch (Exception e) {
+                log.error("處理第{}行數據時發生錯誤：{}", r + 1, e.getMessage());
+                errorCount++;
             }
-            newBeeMallGoodsArrayList.add(newBeeMallGoods);
         }
-        log.info("拼装数据完成～～～～～执行入库start");
-        goodsMapper.insertExportData(newBeeMallGoodsArrayList);
-        log.info("拼装数据完成～～～～～执行入库end");
+        
+        if (newBeeMallGoodsArrayList.isEmpty()) {
+            return "沒有有效的商品數據";
+        }
+        
+        try {
+            log.info("開始批量插入數據，共{}條記錄", newBeeMallGoodsArrayList.size());
+            this.goodsMapper.insertExportData(newBeeMallGoodsArrayList);
+            log.info("數據插入成功，成功處理{}條記錄，失敗{}條記錄", successCount, errorCount);
+            return "SUCCESS";
+        } catch (Exception e) {
+            log.error("批量插入數據失敗", e);
+            return "數據庫插入失敗：" + e.getMessage();
+        }
+    }
+    
+    /**
+     * 獲取單元格的值作為字符串
+     */
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null) {
+            return null;
+        }
+        
+        String cellStringValue = null;
+        int cellType = cell.getCellType();
+        
+        switch (cellType) {
+            case Cell.CELL_TYPE_NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    // 處理日期格式
+                    cellStringValue = cell.getDateCellValue().toString();
+                } else {
+                    // 處理數字，避免科學計數法
+                    double numericValue = cell.getNumericCellValue();
+                    if (numericValue == (long) numericValue) {
+                        cellStringValue = String.valueOf((long) numericValue);
+                    } else {
+                        cellStringValue = String.valueOf(numericValue);
+                    }
+                }
+                break;
+            case Cell.CELL_TYPE_STRING:
+                cellStringValue = cell.getStringCellValue();
+                break;
+            case Cell.CELL_TYPE_BOOLEAN:
+                cellStringValue = String.valueOf(cell.getBooleanCellValue());
+                break;
+            case Cell.CELL_TYPE_FORMULA:
+                try {
+                    cellStringValue = cell.getStringCellValue();
+                } catch (Exception e) {
+                    try {
+                        cellStringValue = String.valueOf(cell.getNumericCellValue());
+                    } catch (Exception ex) {
+                        cellStringValue = "公式錯誤";
+                    }
+                }
+                break;
+            default:
+                cellStringValue = "";
+        }
+        
+        return cellStringValue != null ? cellStringValue.trim() : null;
+    }
+    
+    /**
+     * 設置商品字段值
+     */
+    private void setGoodsField(NewBeeMallGoodsImport goods, int columnIndex, String value) {
+        switch (columnIndex) {
+            case 0:
+                goods.setGoodsNum(value);
+                break;
+            case 1:
+                goods.setGoodsName(value);
+                break;
+            case 2:
+                goods.setPackagingUnit(value);
+                break;
+            case 3:
+                goods.setSpecifications(value);
+                break;
+            case 4:
+                goods.setSupplyCycle(value);
+                break;
+            case 5:
+                goods.setOriginalPrice(value);
+                break;
+            case 6:
+                goods.setSellingPrice(value);
+                break;
+            case 7:
+                goods.setBrandId(value);
+                break;
+            case 8:
+                goods.setGoodsCategoryId(value);
+                break;
+            case 9:
+                goods.setGoodsIntro(value);
+                break;
+            case 10:
+                goods.setStorageCons(value);
+                break;
+            case 11:
+                goods.setGoodsSellStatus(value);
+                break;
+            case 12:
+                goods.setGoodsDetailContent(value);
+                break;
+            default:
+                // 忽略其他列
+                break;
+        }
     }
 }

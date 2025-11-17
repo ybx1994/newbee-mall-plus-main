@@ -31,6 +31,13 @@ spring:
     time-zone: GMT+8
   profiles:
     active: dev
+  # 文件上傳配置
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2KB
 
 # mybatis配置
 mybatis:

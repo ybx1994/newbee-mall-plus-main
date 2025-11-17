@@ -70,5 +70,7 @@ public interface NewBeeMallGoodsService {
 
     void insertExportData(ArrayList<NewBeeMallGoodsImport> newBeeMallGoodsArrayList);
 
-    void ImportData(Workbook workbook);
+
+    String ImportData(Workbook workbook);
+
 }

@@ -3,13 +3,13 @@
     float: left;
     width: 228px;
     border-top: none;
-    background: #000;
+    background: #fafafa;
     height: 100%;
 }
 
 .all-sort-list .item {
     height: 49px;
-    border-top: 1px solid #FFFFFF;
+    border-top: 1px solid #c9dae1;
 }
 
 .all-sort-list .item.bo {
@@ -17,9 +17,9 @@
 }
 
 .all-sort-list .item h3 {
-    height: 30px;
-    line-height: 45px;
-    font-size: 15px;
+    height: 50px;
+    line-height: 67px;
+    font-size: 17px;
     font-weight: normal;
     width: 199px;
     overflow: hidden;
@@ -32,7 +32,7 @@
 }
 
 .all-sort-list .item a {
-    color: #fff;
+    color: #151414;
     text-decoration: none;
 }
 
@@ -47,7 +47,7 @@
     width: 495px;
     min-height: 200px;
     _height: 200px;
-    background: #FFF;
+    background: #e2e3ea4d;
     left: 210px;
     box-shadow: 0px 0px 10px #DDDDDD;
     border: 1px solid #DDD;
@@ -70,6 +70,7 @@
 
 .item-list .subitem .fore1 {
     border-top: none;
+    font-size: 13px;
 }
 
 .item-list .subitem dt {
@@ -148,7 +149,7 @@
     align-items: center;
     height: 40px;
     padding: 0 30px;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 #content #banner #cate_menu > ul > li:last-of-type {

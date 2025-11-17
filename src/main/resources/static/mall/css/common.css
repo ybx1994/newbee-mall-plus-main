@@ -1,83 +1,83 @@
 * {
-  margin: 0;
-  padding: 0;
-  text-decoration: none;
-  list-style-type: none;
-  font-family: Microsoft Yahei;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    list-style-type: none;
+    font-family: Microsoft Yahei;
 }
 @media screen and (max-width: 1225px) {
-  body {
-    width: 1226px;
-  }
+    body {
+        width: 1226px;
+    }
 }
 img {
-  border: none;
-  max-width: 100%;
-  max-height: 100%;
+    border: none;
+    max-width: 100%;
+    max-height: 100%;
 }
 a {
-  border: none;
-  text-decoration: none;
-  color: #000;
+    border: none;
+    text-decoration: none;
+    color: #000;
 }
 .border {
-  border: 1px solid #f00;
+    border: 1px solid #f00;
 }
 .center {
-  margin: 0 auto;
+    margin: 0 auto;
 }
 .w {
-  width: 1226px;
-  margin: 0 auto;
+    width: 1226px;
+    margin: 0 auto;
 }
 .fl {
-  float: left;
+    float: left;
 }
 .fr {
-  float: right;
+    float: right;
 }
 .clear {
-  clear: both;
+    clear: both;
 }
 .clearfix::after {
-  content: "";
-  height: 0;
-  display: block;
-  clear: both;
-  visibility: hidden;
+    content: "";
+    height: 0;
+    display: block;
+    clear: both;
+    visibility: hidden;
 }
 .mt20 {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 .mt10 {
-  margin-top: 10px;
+    margin-top: 10px;
 }
 .ml20 {
-  margin-left: 20px;
+    margin-left: 20px;
 }
 .ml40 {
-  margin-left: 40px;
+    margin-left: 40px;
 }
 .mr40 {
-  margin-right: 40px;
+    margin-right: 40px;
 }
 .mb20 {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 .border2 {
-  border: 2px solid #ff6700;
+    border: 2px solid #ff6700;
 }
 .ft20 {
-  font-size: 20px;
+    font-size: 20px;
 }
 .ftbc {
-  color: #ff6700;
-  font-weight: bold;
+    color: #ff6700;
+    font-weight: bold;
 }
 .pr {
-  padding-right: 40px;
+    padding-right: 40px;
 }
 .h3 {
-  font-size: 22px;
-  font-weight: bold;
+    font-size: 22px;
+    font-weight: bold;
 }
